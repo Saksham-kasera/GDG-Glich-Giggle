@@ -83,8 +83,8 @@ class PhysicsModule {
     this.bouncy.vel = (Math.random() > 0.5 ? 1.5 : -1.5) * (1 + Math.random() * 0.8);
   }
 
-  // --- 2. EVASIVE BUTTON REPULSION ---
-  applyEvasion(buttonElement, cursorX, cursorY, threshold = 85, maxPush = 140) {
+  // --- 2. EVASIVE BUTTON REPULSION (High-Velocity Panic Repulsion) ---
+  applyEvasion(buttonElement, cursorX, cursorY, threshold = 175, maxPush = 260) {
     if (!buttonElement) return;
     const rect = buttonElement.getBoundingClientRect();
     const btnCenterX = rect.left + rect.width / 2;
@@ -96,22 +96,47 @@ class PhysicsModule {
 
     if (dist < threshold) {
       // Repel vector away from cursor
-      const angle = Math.atan2(dy, dx);
-      const pushFactor = (1 - dist / threshold) * maxPush;
+      let angle = Math.atan2(dy, dx);
+      let pushFactor = (1 - dist / threshold) * maxPush;
+
+      // Close-range panic response: If cursor gets within 75px, fling away with boost!
+      if (dist < 75) {
+        pushFactor *= 1.45;
+        angle += (Math.random() - 0.5) * 0.8; // erratic sideways evasion
+        const moveX = -Math.cos(angle) * pushFactor;
+        const moveY = -Math.sin(angle) * pushFactor;
+        const rot = (Math.random() - 0.5) * 16;
+        buttonElement.style.transform = `translate(${moveX}px, ${moveY}px) scale(0.92) rotate(${rot}deg)`;
+        buttonElement.style.transition = 'transform 0.05s cubic-bezier(0.1, 0.9, 0.2, 1)';
+        return true;
+      }
       
-      // Calculate new offset
+      // Calculate standard repulsive offset
       const moveX = -Math.cos(angle) * pushFactor;
       const moveY = -Math.sin(angle) * pushFactor;
 
       buttonElement.style.transform = `translate(${moveX}px, ${moveY}px) scale(0.96)`;
-      buttonElement.style.transition = 'transform 0.08s ease-out';
+      buttonElement.style.transition = 'transform 0.06s ease-out';
       return true;
     } else {
       // Return gently
-      buttonElement.style.transform = 'translate(0px, 0px) scale(1)';
-      buttonElement.style.transition = 'transform 0.4s ease';
+      buttonElement.style.transform = 'translate(0px, 0px) scale(1) rotate(0deg)';
+      buttonElement.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
       return false;
     }
+  }
+
+  // Fling button away violently when click is ignored!
+  forcePanicDodge(buttonElement) {
+    if (!buttonElement) return;
+    const randAngle = Math.random() * Math.PI * 2;
+    const distance = 200 + Math.random() * 80;
+    const randX = Math.cos(randAngle) * distance;
+    const randY = Math.sin(randAngle) * distance;
+    const randRot = (Math.random() - 0.5) * 30;
+
+    buttonElement.style.transform = `translate(${randX}px, ${randY}px) scale(0.88) rotate(${randRot}deg)`;
+    buttonElement.style.transition = 'transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
   }
 
   // --- 3. SLINGSHOT CANVAS LOGIC ---

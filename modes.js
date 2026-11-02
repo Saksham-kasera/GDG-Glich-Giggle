@@ -76,10 +76,12 @@ class TortureModes {
     const lockBtn = document.getElementById('btn-kinetic-lock');
     const readout = document.getElementById('kinetic-val');
 
-    // Runaway lock button evasion!
+    this.lockClickAttempts = 0;
+
+    // Runaway lock button evasion (Extreme magnetic repulsion)
     window.addEventListener('mousemove', (e) => {
       if (this.currentMode === 'kinetic') {
-        window.physicsEngine.applyEvasion(lockBtn, e.clientX, e.clientY, 75, 120);
+        window.physicsEngine.applyEvasion(lockBtn, e.clientX, e.clientY, 175, 260);
       }
     });
 
@@ -97,21 +99,56 @@ class TortureModes {
     loop();
 
     if (lockBtn) {
-      lockBtn.addEventListener('click', () => {
-        if (window.physicsEngine.bouncy.running) {
-          const lockedVal = window.physicsEngine.lockBouncySlider();
-          lockBtn.innerText = "🔒 LOCKED! (Unlocking in 3s...)";
-          lockBtn.classList.add('locked-btn');
-          this.app.setMasterVolume(lockedVal, true);
-          if (window.soundEngine) window.soundEngine.playCashRegister();
+      lockBtn.addEventListener('click', (e) => {
+        if (!window.physicsEngine.bouncy.running) return;
+
+        this.lockClickAttempts++;
+
+        // Troll logic: Ignore ~65% of successful clicks!
+        const shouldIgnore = Math.random() < 0.65 && this.lockClickAttempts % 3 !== 0;
+
+        if (shouldIgnore) {
+          if (window.soundEngine) window.soundEngine.playBoing();
+          window.physicsEngine.forcePanicDodge(lockBtn);
+
+          const reasons = [
+            "💨 CLICK SLIPPED: Cursor lacked friction! Coefficient: 0.02 µ",
+            "❌ CLICK REJECTED: Touch impact too gentle! Required: 4.8 Newtons",
+            "⚛️ QUANTUM TUNNELING: The button phased through your cursor",
+            "⏳ LATENCY AUDIT: Click arrived 19ms late. Puck already escaped",
+            "🪞 DECOY BUTTON: You clicked the mirror hologram. Real button fled"
+          ];
+          const reason = reasons[Math.floor(Math.random() * reasons.length)];
+          this.app.toast(reason, "alert");
+
+          const origText = lockBtn.innerText;
+          lockBtn.innerText = "❌ CLICK SLIPPED!";
+          lockBtn.style.background = "#ff2a00";
+          lockBtn.style.color = "#ffffff";
 
           setTimeout(() => {
-            window.physicsEngine.resumeBouncySlider();
-            lockBtn.innerText = "🛑 CATCH & LOCK VOLUME";
-            lockBtn.classList.remove('locked-btn');
-            this.app.toast("⚠️ Thermal slippage detected: Puck resumed motion!", "warning");
-          }, 3200);
+            lockBtn.innerText = origText;
+            lockBtn.style.background = "";
+            lockBtn.style.color = "";
+          }, 650);
+
+          return;
         }
+
+        // Successfully locked!
+        const lockedVal = window.physicsEngine.lockBouncySlider();
+        lockBtn.innerText = "🔒 LOCKED! (Unlocking in 3s...)";
+        lockBtn.classList.add('locked-btn');
+        this.app.setMasterVolume(lockedVal, true);
+        if (window.soundEngine) window.soundEngine.playCashRegister();
+        this.app.toast(`🎯 MIRACLE: You actually caught the button! Volume frozen at ${lockedVal}%`, "success");
+
+        setTimeout(() => {
+          window.physicsEngine.resumeBouncySlider();
+          lockBtn.innerText = "🛑 CATCH & LOCK VOLUME";
+          lockBtn.classList.remove('locked-btn');
+          this.app.toast("⚠️ Thermal slippage detected: Puck resumed motion!", "warning");
+        }, 3200);
       });
     }
   }
