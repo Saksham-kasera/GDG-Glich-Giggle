@@ -99,6 +99,8 @@ This project was conceived and architected by an ensemble of specialized AI agen
    Clicking "Mute Audio" guilt-trips the user about hurting the artist's feelings. If confirmed, it activates "Courage Override", sets volume to 100%, and fires an ear-splitting airhorn.
 8. **Sir Jony's Secret Memorandum:**  
    Clicking the STREE "S" logo badge 5 times unlocks an exclusive confidential memo from Sir Jony Ive justifying the anti-human ergonomics.
+9. **🩸 The Horror of STREE (Blood Drips & Ghostly Curse):**  
+   Hovering your cursor over the **STREE** heading/logo triggers an interactive horror event: blood streams drip and ooze down from the letters of the heading, flickering blood-red lightning covers the screen, a ghostly chant appears (*"ओ स्त्री कल आना... VOLUME WILL BE SACRIFICED"*), and horrifying microtonal violin shrieks screech through Web Audio API!
 
 ---
 

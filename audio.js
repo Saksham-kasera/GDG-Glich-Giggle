@@ -364,6 +364,67 @@ class DecibelAudioEngine {
       return true;
     }
   }
+
+  // --- HORROR OF STREE SOUNDSCAPE ---
+  startHorrorSound() {
+    this.ensureContext();
+    if (this.horrorOscillators) return;
+    this.horrorOscillators = [];
+
+    const now = this.ctx.currentTime;
+
+    // Sub-bass dread drone (55Hz / 58Hz tritone clash)
+    [55, 58.2].forEach(freq => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(180, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.3);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      this.horrorOscillators.push({ osc, gain });
+    });
+
+    // High piercing horror strings screech
+    [666, 707, 942, 1188].forEach((freq) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq + Math.random() * 5, now);
+      osc.frequency.linearRampToValueAtTime(freq - 35, now + 1.2);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      this.horrorOscillators.push({ osc, gain });
+    });
+  }
+
+  stopHorrorSound() {
+    if (!this.horrorOscillators || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.horrorOscillators.forEach(({ osc, gain }) => {
+      try {
+        gain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
+        osc.stop(now + 0.55);
+      } catch (e) {}
+    });
+    this.horrorOscillators = null;
+  }
 }
 
 window.soundEngine = new DecibelAudioEngine();

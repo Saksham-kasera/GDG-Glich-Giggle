@@ -24,6 +24,7 @@ class SecretOperations {
     this.initSecretLogoClicks();
     this.initTosReverseModal();
     this.initHeroReadoutTroll();
+    this.initStreeHorrorEffect();
   }
 
   // 7. Hero Readout Flip Troll
@@ -283,6 +284,96 @@ class SecretOperations {
         this.logoClicks = 0;
       }
     });
+  }
+
+  // 8. Horror of Stree Hover Effect (Blood Leaks & Horror Animation)
+  initStreeHorrorEffect() {
+    const logo = document.getElementById('stree-logo');
+    const warning = document.getElementById('horror-stree-warning');
+    const bloodContainer = document.getElementById('blood-drip-container');
+    if (!logo) return;
+
+    let dripInterval = null;
+    let fadeTimeout = null;
+
+    const startHorror = () => {
+      if (fadeTimeout) {
+        clearTimeout(fadeTimeout);
+        fadeTimeout = null;
+      }
+
+      document.body.classList.add('stree-horror-active');
+      logo.classList.add('bleeding-heading');
+      if (warning) warning.style.display = 'block';
+
+      if (window.soundEngine && typeof window.soundEngine.startHorrorSound === 'function') {
+        window.soundEngine.startHorrorSound();
+      }
+
+      if (window.app && !this.horrorToastShown) {
+        this.app.toast("🩸 THE CURSE OF STREE AWAKENS: Blood is leaking into the volume coils!", "alert");
+        this.horrorToastShown = true;
+      }
+
+      // Continuously spawn blood drips while cursor is over STREE
+      if (!dripInterval) {
+        // Spawn an initial burst of drips
+        for (let i = 0; i < 6; i++) {
+          this.spawnBloodDrip(logo, bloodContainer);
+        }
+        dripInterval = setInterval(() => {
+          this.spawnBloodDrip(logo, bloodContainer);
+        }, 110);
+      }
+    };
+
+    const stopHorror = () => {
+      if (dripInterval) {
+        clearInterval(dripInterval);
+        dripInterval = null;
+      }
+
+      // Linger effect for 1.6s so blood drips continue their drop
+      fadeTimeout = setTimeout(() => {
+        document.body.classList.remove('stree-horror-active');
+        logo.classList.remove('bleeding-heading');
+        if (warning) warning.style.display = 'none';
+        if (window.soundEngine && typeof window.soundEngine.stopHorrorSound === 'function') {
+          window.soundEngine.stopHorrorSound();
+        }
+        this.horrorToastShown = false;
+      }, 1600);
+    };
+
+    logo.addEventListener('mouseenter', startHorror);
+    logo.addEventListener('mouseleave', stopHorror);
+  }
+
+  spawnBloodDrip(logo, container) {
+    if (!container) return;
+    const rect = logo.getBoundingClientRect();
+    const drop = document.createElement('div');
+    drop.className = 'blood-drop';
+
+    // Position along the heading width
+    const randomX = Math.random() * (rect.width - 30) + 15;
+    drop.style.left = `${randomX}px`;
+    drop.style.top = `38px`;
+
+    // Vary drip thickness and stream length
+    const width = Math.random() * 8 + 4;
+    const maxHeight = Math.random() * 220 + 80;
+    const duration = Math.random() * 1.0 + 1.2;
+
+    drop.style.width = `${width}px`;
+    drop.style.setProperty('--target-height', `${maxHeight}px`);
+    drop.style.animationDuration = `${duration}s`;
+
+    container.appendChild(drop);
+
+    setTimeout(() => {
+      drop.remove();
+    }, duration * 1000 + 200);
   }
 }
 
