@@ -25,6 +25,7 @@ class SecretOperations {
     this.initTosReverseModal();
     this.initHeroReadoutTroll();
     this.initStreeHorrorEffect();
+    this.initClickBloodDrainEffect();
   }
 
   // 7. Hero Readout Flip Troll
@@ -374,6 +375,74 @@ class SecretOperations {
     setTimeout(() => {
       drop.remove();
     }, duration * 1000 + 200);
+  }
+
+  // 9. Blood Draining Click Effect (Every Single Mouse Click)
+  initClickBloodDrainEffect() {
+    window.addEventListener('mousedown', (e) => {
+      this.triggerBloodDrainAt(e.clientX, e.clientY);
+    });
+  }
+
+  triggerBloodDrainAt(x, y) {
+    if (window.soundEngine && typeof window.soundEngine.playBloodDripSound === 'function') {
+      window.soundEngine.playBloodDripSound();
+    }
+
+    // 1. Fullscreen subtle blood flash & vignette centered at click
+    const flash = document.createElement('div');
+    flash.className = 'blood-click-flash';
+    flash.style.setProperty('--click-x', `${x}px`);
+    flash.style.setProperty('--click-y', `${y}px`);
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 600);
+
+    // 2. Central impact splat container
+    const container = document.createElement('div');
+    container.className = 'click-blood-container';
+    container.style.left = `${x}px`;
+    container.style.top = `${y}px`;
+
+    const splatCore = document.createElement('div');
+    splatCore.className = 'click-blood-core';
+    container.appendChild(splatCore);
+
+    // 3. Spurt/droplet particles radiating outward
+    const numDroplets = 5 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < numDroplets; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'click-blood-particle';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 18 + Math.random() * 45;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist + (Math.random() * 22);
+      const size = 3 + Math.random() * 6;
+      drop.style.width = `${size}px`;
+      drop.style.height = `${size}px`;
+      drop.style.setProperty('--dest-x', `${dx}px`);
+      drop.style.setProperty('--dest-y', `${dy}px`);
+      container.appendChild(drop);
+    }
+
+    // 4. Dripping blood trickle streams draining downward
+    const numStreams = 2 + Math.floor(Math.random() * 3);
+    for (let j = 0; j < numStreams; j++) {
+      const stream = document.createElement('div');
+      stream.className = 'click-blood-trickle';
+      const offsetX = (Math.random() - 0.5) * 26;
+      const width = 3 + Math.random() * 5;
+      const drainH = 65 + Math.random() * 120;
+      const duration = 1.0 + Math.random() * 0.8;
+
+      stream.style.left = `${offsetX}px`;
+      stream.style.width = `${width}px`;
+      stream.style.setProperty('--drain-height', `${drainH}px`);
+      stream.style.animationDuration = `${duration}s`;
+      container.appendChild(stream);
+    }
+
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 1800);
   }
 }
 
