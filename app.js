@@ -88,6 +88,19 @@ class StreeApp {
       });
     }
 
+    // Toggle "Dabo Dabi" audio manually
+    const daboBtn = document.getElementById('btn-toggle-dabo');
+    if (daboBtn) {
+      daboBtn.addEventListener('click', () => {
+        const playing = window.soundEngine.toggleDaboDabi();
+        daboBtn.innerText = playing ? "⏸️ Pause Dabo Dabi" : "🎵 Play Dabo Dabi";
+        daboBtn.classList.toggle('active', playing);
+        if (playing) {
+          this.toast("🔊 Dabo Dabi is playing! Move any volume control to hear it scale.", "success");
+        }
+      });
+    }
+
     // "Optimize Volume" AI button (Does the opposite of what user expects)
     const aiBtn = document.getElementById('btn-ai-optimize');
     if (aiBtn) {

@@ -6,6 +6,7 @@
  * - Real live background music (Chill elevator lounge chords that distort with volume)
  * - Hilarious sound effects: Slingshot twangs, ice shatter, rubber boing, error buzzer, airhorn, stamp thud
  * - Live Master Gain control that reflects the user's tortured volume percentage
+ * - Real-time volume tracking for "dabo dabi.mpeg"
  */
 
 class DecibelAudioEngine {
@@ -18,6 +19,7 @@ class DecibelAudioEngine {
     this.musicTimer = null;
     this.currentVolume = 0.42; // default 42%
     this.chordStep = 0;
+    this.activeDaboAudio = null;
     
     // Smooth, pretentious elevator-music chord progression (Fmaj7 -> G6 -> Em7 -> Am7)
     this.chords = [
@@ -64,6 +66,16 @@ class DecibelAudioEngine {
       // Exponential ramp for realistic ear-splitting or whisper behavior
       const safeGain = Math.max(0.0001, this.currentVolume);
       this.masterGain.gain.setTargetAtTime(safeGain, this.ctx.currentTime, 0.05);
+    }
+
+    // Dynamically adjust dabo dabi volume in real time!
+    const targetVol = Math.max(0, Math.min(1.0, this.currentVolume));
+    const daboElem = document.getElementById('dabo-audio');
+    if (daboElem) {
+      daboElem.volume = targetVol;
+    }
+    if (this.activeDaboAudio) {
+      this.activeDaboAudio.volume = targetVol;
     }
   }
 
@@ -308,28 +320,50 @@ class DecibelAudioEngine {
   playDaboDabi() {
     this.ensureContext();
     const elem = document.getElementById('dabo-audio');
-    const targetVol = Math.max(0.1, Math.min(1.0, this.currentVolume || 0.6));
+    const targetVol = Math.max(0, Math.min(1.0, this.currentVolume !== undefined ? this.currentVolume : 0.42));
     if (elem) {
       elem.currentTime = 0;
       elem.volume = targetVol;
+      elem.loop = true;
+      this.activeDaboAudio = elem;
       const playPromise = elem.play();
       if (playPromise !== undefined) {
         playPromise.catch(err => {
           console.warn('Audio tag playback note:', err);
           const fallback = new Audio('dabo dabi.mpeg');
           fallback.volume = targetVol;
+          fallback.loop = true;
+          this.activeDaboAudio = fallback;
           fallback.play().catch(e => console.warn('Fallback note:', e));
         });
+      }
+      const daboBtn = document.getElementById('btn-toggle-dabo');
+      if (daboBtn) {
+        daboBtn.innerText = "⏸️ Pause Dabo Dabi";
+        daboBtn.classList.add('active');
       }
       return elem;
     } else {
       const fallback = new Audio('dabo dabi.mpeg');
       fallback.volume = targetVol;
+      fallback.loop = true;
+      this.activeDaboAudio = fallback;
       fallback.play().catch(e => console.warn('Fallback note:', e));
       return fallback;
+    }
+  }
+
+  toggleDaboDabi() {
+    this.ensureContext();
+    const elem = document.getElementById('dabo-audio') || this.activeDaboAudio;
+    if (elem && !elem.paused) {
+      elem.pause();
+      return false;
+    } else {
+      this.playDaboDabi();
+      return true;
     }
   }
 }
 
 window.soundEngine = new DecibelAudioEngine();
-
