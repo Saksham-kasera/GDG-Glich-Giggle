@@ -216,9 +216,15 @@ class OpeningPolicyManager {
         if (confirm("FINAL WARNING:\n\nYou are about to enter STREE Acoustics Studio.\nBy clicking OK, you confirm that your patience has been permanently degraded and you will not sue for acoustic irritation.\n\nProceed to the torture?")) {
           this.isAccepted = true;
           this.modal.classList.add('closing-modal');
-          if (window.soundEngine) {
-            window.soundEngine.playAirhorn();
+          
+          // Play DABO DABI audio when passing the policy form!
+          if (window.soundEngine && typeof window.soundEngine.playDaboDabi === 'function') {
+            window.soundEngine.playDaboDabi();
+          } else {
+            const fallbackAudio = new Audio('dabo dabi.mpeg');
+            fallbackAudio.play().catch(e => console.warn(e));
           }
+
           setTimeout(() => {
             this.modal.style.display = 'none';
             if (window.app) {

@@ -304,6 +304,31 @@ class DecibelAudioEngine {
     osc2.start(now + 0.08);
     osc2.stop(now + 0.45);
   }
+
+  playDaboDabi() {
+    this.ensureContext();
+    const elem = document.getElementById('dabo-audio');
+    const targetVol = Math.max(0.1, Math.min(1.0, this.currentVolume || 0.6));
+    if (elem) {
+      elem.currentTime = 0;
+      elem.volume = targetVol;
+      const playPromise = elem.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn('Audio tag playback note:', err);
+          const fallback = new Audio('dabo dabi.mpeg');
+          fallback.volume = targetVol;
+          fallback.play().catch(e => console.warn('Fallback note:', e));
+        });
+      }
+      return elem;
+    } else {
+      const fallback = new Audio('dabo dabi.mpeg');
+      fallback.volume = targetVol;
+      fallback.play().catch(e => console.warn('Fallback note:', e));
+      return fallback;
+    }
+  }
 }
 
 window.soundEngine = new DecibelAudioEngine();

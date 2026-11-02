@@ -51,6 +51,7 @@ This project was conceived and architected by an ensemble of specialized AI agen
 * **The Molasses Scroll Engine:** The scroll is bound to a custom viscous physics engine that limits downward progression to only **5 pixels per wheel actuation** with extreme damping.
 * **Anti-Speeding Radar:** Furiously flicking or spinning the scroll wheel triggers a **"Velocity Violation"** penalty that bounces the user backward by 120 pixels!
 * **The Deceptive Double-Negative Checkboxes:** Users must navigate contradictory legal double-negatives: Checkbox 1 must be checked (*"I certify that I DO NOT refuse to refrain from not disagreeing"*), while Checkbox 2 must be unchecked.
+* **The "Dabo Dabi" Victory Anthem:** Passing the policy form immediately triggers the celebratory **`dabo dabi.mpeg`** audio playback as the gateway opens!
 * **Turbo Overheat Trap:** The button *"⚡ Accelerate Scroll (+50% Speed)"* actually reduces scroll speed by 35% due to simulated "bureaucratic friction".
 
 ### 1. ⚡ Kinetic Frictionless Puck (DVD Screensaver Slider)
